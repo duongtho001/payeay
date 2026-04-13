@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayEay — Chính sách Bảo mật</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #F5F7FA; color: #1E293B; line-height: 1.7; }
+        .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+        h1 { font-size: 28px; margin-bottom: 8px; color: #2196F3; }
+        .subtitle { color: #64748B; margin-bottom: 32px; font-size: 14px; }
+        h2 { font-size: 18px; margin: 28px 0 12px; color: #1E293B; }
+        p, li { font-size: 15px; color: #475569; margin-bottom: 10px; }
+        ul { padding-left: 24px; }
+        li { margin-bottom: 6px; }
+        .card { background: white; border-radius: 14px; padding: 28px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .highlight { background: #E3F2FD; border-left: 4px solid #2196F3; padding: 16px 20px; border-radius: 8px; margin: 16px 0; }
+        .highlight p { color: #1565C0; margin: 0; }
+        .footer { text-align: center; color: #94A3B8; font-size: 13px; margin-top: 40px; }
+        a { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Chính sách Bảo mật</h1>
+        <p class="subtitle">PayEay — Ứng dụng tự động xác nhận chuyển khoản | Cập nhật: 13/04/2026</p>
+
+        <div class="card">
+            <h2>1. Thông tin chúng tôi thu thập</h2>
+            <p>PayEay <strong>chỉ</strong> thu thập các thông tin tối thiểu cần thiết để hoạt động:</p>
+            <ul>
+                <li><strong>Nội dung thông báo từ app ngân hàng</strong> — chỉ đọc thông báo từ các ứng dụng ngân hàng đã được liệt kê sẵn (VCB, MB, BIDV, ACB, TPBank...)</li>
+                <li><strong>Thông tin giao dịch</strong> — số tiền, nội dung chuyển khoản, tên ngân hàng</li>
+            </ul>
+
+            <div class="highlight">
+                <p>⚠️ <strong>Chúng tôi KHÔNG thu thập:</strong> mật khẩu, số dư tài khoản, thông tin cá nhân, danh bạ, vị trí, tin nhắn SMS, hoặc bất kỳ dữ liệu nào khác.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Cách chúng tôi sử dụng dữ liệu</h2>
+            <p>Dữ liệu giao dịch được phát hiện <strong>chỉ</strong> được sử dụng để:</p>
+            <ul>
+                <li>Gửi đến <strong>Webhook URL do người dùng tự cấu hình</strong></li>
+                <li>Hiển thị trên giao diện app cho người dùng theo dõi</li>
+            </ul>
+            <p>Chúng tôi <strong>KHÔNG</strong> gửi dữ liệu đến bất kỳ máy chủ bên thứ 3 nào ngoài Webhook URL do người dùng chỉ định.</p>
+        </div>
+
+        <div class="card">
+            <h2>3. Quyền ứng dụng</h2>
+            <ul>
+                <li><strong>Notification Listener Service</strong> — Đọc thông báo từ app ngân hàng để phát hiện giao dịch. Đây là quyền duy nhất liên quan đến dữ liệu nhạy cảm.</li>
+                <li><strong>Internet</strong> — Gửi thông tin giao dịch đến Webhook URL</li>
+                <li><strong>Network State</strong> — Kiểm tra kết nối mạng</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>4. Lưu trữ dữ liệu</h2>
+            <p>Tất cả dữ liệu được lưu trữ <strong>cục bộ trên thiết bị</strong> của người dùng (SharedPreferences). Không có dữ liệu nào được lưu trên máy chủ của chúng tôi, trừ khi người dùng chủ động đồng bộ với hệ thống quản lý web (Supabase) do chính họ cấu hình.</p>
+        </div>
+
+        <div class="card">
+            <h2>5. Chia sẻ dữ liệu</h2>
+            <p>Chúng tôi <strong>KHÔNG</strong> chia sẻ, bán, hoặc cho thuê bất kỳ dữ liệu nào của người dùng cho bên thứ 3. Dữ liệu chỉ được gửi đến endpoint do chính người dùng cấu hình.</p>
+        </div>
+
+        <div class="card">
+            <h2>6. Bảo mật</h2>
+            <p>Chúng tôi áp dụng các biện pháp bảo mật:</p>
+            <ul>
+                <li>Kết nối HTTPS cho mọi giao tiếp mạng</li>
+                <li>Dữ liệu lưu cục bộ trên thiết bị, không truyền về máy chủ trung gian</li>
+                <li>Hỗ trợ Secret Key cho webhook để xác thực</li>
+                <li>Mã nguồn minify và obfuscate qua R8/ProGuard</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>7. Quyền của người dùng</h2>
+            <ul>
+                <li>Bạn có quyền <strong>tắt</strong> quyền Notification Listener bất kỳ lúc nào</li>
+                <li>Bạn có quyền <strong>xóa</strong> app và toàn bộ dữ liệu cục bộ</li>
+                <li>Bạn có quyền <strong>thay đổi</strong> hoặc xóa Webhook URL</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>8. Liên hệ</h2>
+            <p>Nếu có câu hỏi về chính sách bảo mật, vui lòng liên hệ:</p>
+            <p>📧 Email: <a href="mailto:support@payeay.com">support@payeay.com</a></p>
+        </div>
+
+        <p class="footer">© 2026 PayEay. Tất cả quyền được bảo lưu.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayEay — Tự động xác nhận thanh toán chuyển khoản</title>
+    <meta name="description" content="PayEay — Ứng dụng tự động phát hiện và xác nhận giao dịch chuyển khoản ngân hàng. Hỗ trợ VCB, MB, BIDV, ACB, TPBank và nhiều ngân hàng khác.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ═══ AUTH OVERLAY ═══ -->
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <img src="logo.png" alt="PayEay" class="auth-logo">
+            <h1 class="auth-title">PayEay</h1>
+            <p class="auth-subtitle">Tự động xác nhận thanh toán</p>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="email@example.com" class="input" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="input" autocomplete="current-password">
+                </div>
+                <button class="btn-primary" onclick="handleLogin()">Đăng nhập</button>
+                <p class="auth-switch">Chưa có tài khoản? <a href="#" onclick="showRegister()">Đăng ký ngay</a></p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form hidden">
+                <div class="form-group">
+                    <label>Họ tên</label>
+                    <input type="text" id="regName" placeholder="Nguyễn Văn A" class="input">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="email@example.com" class="input">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="tel" id="regPhone" placeholder="0901234567" class="input">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="regPassword" placeholder="Tối thiểu 6 ký tự" class="input">
+                </div>
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu</label>
+                    <input type="password" id="regConfirmPassword" placeholder="Nhập lại mật khẩu" class="input">
+                </div>
+                <button class="btn-primary" onclick="handleRegister()">Tạo tài khoản</button>
+                <p class="auth-switch">Đã có tài khoản? <a href="#" onclick="showLogin()">Đăng nhập</a></p>
+            </div>
+            <div id="authError" class="auth-error hidden"></div>
+        </div>
+    </div>
+
+    <!-- ═══ MAIN APP (after login) ═══ -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <img src="logo.png" alt="PayEay" class="header-logo">
+                <span class="header-brand">PayEay</span>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span id="userName" class="user-name">User</span>
+                    <span class="user-badge">PRO</span>
+                </div>
+                <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">U</div>
+                <div id="userMenu" class="user-menu hidden">
+                    <a href="#" onclick="showProfile()">👤 Hồ sơ</a>
+                    <a href="#" onclick="handleLogout()">🚪 Đăng xuất</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Content Container -->
+        <main class="content">
+            <!-- ═══ TAB: Dashboard ═══ -->
+            <section id="tab-home" class="tab-panel active">
+                <!-- Hero Banner -->
+                <div class="hero-banner">
+                    <div class="hero-text">
+                        <h2>Chào mừng đến PayEay! 👋</h2>
+                        <p>Tải app để tự động xác nhận thanh toán</p>
+                    </div>
+                </div>
+
+                <!-- Download Card -->
+                <div class="download-section">
+                    <div class="download-card">
+                        <div class="download-left">
+                            <h3>📱 Tải App PayEay</h3>
+                            <p>Quét mã QR hoặc nhấn nút để tải ứng dụng Android</p>
+                            <div class="download-info">
+                                <span class="info-tag">v2.0.0</span>
+                                <span class="info-tag">2.3 MB</span>
+                                <span class="info-tag">Android 8+</span>
+                            </div>
+                            <a id="downloadBtn" href="#" class="btn-download" onclick="downloadAPK()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Tải APK
+                            </a>
+                        </div>
+                        <div class="download-right">
+                            <div id="qrCode" class="qr-container">
+                                <!-- QR generated by JS -->
+                            </div>
+                            <p class="qr-label">Quét để tải</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Grid -->
+                <h3 class="section-title">✨ Tính năng nổi bật</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon blue">🔔</div>
+                        <h4>Đọc thông báo</h4>
+                        <p>Tự động nhận diện thông báo chuyển khoản từ app ngân hàng</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon green">⚡</div>
+                        <h4>Xác nhận tức thì</h4>
+                        <p>Gửi webhook xác nhận đơn hàng trong < 2 giây</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon orange">🏦</div>
+                        <h4>12+ Ngân hàng</h4>
+                        <p>VCB, MB, BIDV, ACB, Tech, TP, VP, Saco, Agri, MoMo, ZaloPay</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon purple">🔒</div>
+                        <h4>Bảo mật tuyệt đối</h4>
+                        <p>Không lưu mật khẩu, không đọc SMS, chỉ đọc thông báo</p>
+                    </div>
+                </div>
+
+                <!-- How it works -->
+                <h3 class="section-title">⚙️ Cách hoạt động</h3>
+                <div class="how-it-works">
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Cài đặt & Cấp quyền</h4>
+                            <p>Tải APK, bật quyền đọc thông báo cho PayEay</p>
+                        </div>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Nhập Webhook URL</h4>
+                            <p>Cấu hình URL backend nhận dữ liệu giao dịch</p>
+                        </div>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Tự động xác nhận</h4>
+                            <p>Khi khách chuyển khoản, app tự phát hiện & gửi webhook</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supported Banks -->
+                <h3 class="section-title">🏦 Ngân hàng hỗ trợ</h3>
+                <div class="banks-grid">
+                    <div class="bank-tag">Vietcombank</div>
+                    <div class="bank-tag">Techcombank</div>
+                    <div class="bank-tag">MBBank</div>
+                    <div class="bank-tag">BIDV</div>
+                    <div class="bank-tag">VietinBank</div>
+                    <div class="bank-tag">ACB</div>
+                    <div class="bank-tag">TPBank</div>
+                    <div class="bank-tag">VPBank</div>
+                    <div class="bank-tag">Sacombank</div>
+                    <div class="bank-tag">Agribank</div>
+                    <div class="bank-tag">MoMo</div>
+                    <div class="bank-tag">ZaloPay</div>
+                </div>
+            </section>
+
+            <!-- ═══ TAB: Guide ═══ -->
+            <section id="tab-guide" class="tab-panel">
+                <h3 class="section-title">📖 Hướng dẫn cài đặt</h3>
+                
+                <div class="guide-card">
+                    <div class="guide-step">
+                        <span class="guide-num">1</span>
+                        <div>
+                            <h4>Tải và cài APK</h4>
+                            <p>Nhấn nút <strong>"Tải APK"</strong> ở tab Trang chủ. Khi Google Play Protect chặn:</p>
+                            <div class="guide-tip">
+                                <strong>💡 Cách cài:</strong> Mở Play Store → Avatar → Play Protect → ⚙️ → TẮT quét → Cài APK → BẬT lại Play Protect
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-card">
+                    <div class="guide-step">
+                        <span class="guide-num">2</span>
+                        <div>
+                            <h4>Bật quyền đọc thông báo</h4>
+                            <p>Mở app PayEay → nhấn <strong>"Bật quyền thông báo"</strong> → tìm PayEay trong danh sách → BẬT</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-card">
+                    <div class="guide-step">
+                        <span class="guide-num">3</span>
+                        <div>
+                            <h4>Nhập Webhook URL</h4>
+                            <p>Nhập URL API backend của bạn và Secret key (nếu có) vào app</p>
+                            <div class="guide-code">
+                                https://yourdomain.com/api/payment/webhook/custom
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-card">
+                    <div class="guide-step">
+                        <span class="guide-num">4</span>
+                        <div>
+                            <h4>Tắt tiết kiệm pin</h4>
+                            <p>Cài đặt → Pin → PayEay → chọn <strong>"Không hạn chế"</strong></p>
+                            <div class="guide-tip">
+                                <strong>⚠️ Xiaomi/Oppo/Vivo:</strong> Cần bật thêm "Tự khởi động" trong quản lý ứng dụng
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-card">
+                    <div class="guide-step">
+                        <span class="guide-num">5</span>
+                        <div>
+                            <h4>Test giao dịch</h4>
+                            <p>Nhấn <strong>"Gửi giao dịch giả lập"</strong> trong app để kiểm tra kết nối webhook</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ TAB: Statistics ═══ -->
+            <section id="tab-stats" class="tab-panel">
+                <h3 class="section-title">📊 Thống kê</h3>
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-value" id="statOrders">0</div>
+                        <div class="stat-label">Đơn hàng</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="statSuccess">0</div>
+                        <div class="stat-label">Thành công</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="statRevenue">0đ</div>
+                        <div class="stat-label">Doanh thu</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="statRate">0%</div>
+                        <div class="stat-label">Tỉ lệ khớp</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-title">Giao dịch gần đây</h4>
+                    <div id="recentTx" class="tx-list">
+                        <div class="empty-state">Chưa có giao dịch nào</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ TAB: Settings ═══ -->
+            <section id="tab-settings" class="tab-panel">
+                <h3 class="section-title">⚙️ Cài đặt</h3>
+
+                <!-- 4-Step Setup Guide -->
+                <div class="setup-steps-row">
+                    <div class="setup-step-card">
+                        <div class="setup-step-num">1</div>
+                        <h4>Cài đặt app PayEay trên điện thoại Android</h4>
+                        <div class="setup-step-body">
+                            <div id="qrCodeSettings" class="qr-mini"></div>
+                            <p class="qr-mini-label">📱 QUÉT MÃ QR TẢI APP</p>
+                        </div>
+                    </div>
+                    <div class="setup-step-card">
+                        <div class="setup-step-num">2</div>
+                        <h4>Cấp quyền cho app đọc thông báo</h4>
+                        <div class="setup-step-body">
+                            <p class="setup-hint">Android 13+: Vào Cài đặt → App → PayEay → ⋮ → "Cho phép cài đặt bị hạn chế" trước</p>
+                            <div class="setup-icon">🔐</div>
+                        </div>
+                    </div>
+                    <div class="setup-step-card">
+                        <div class="setup-step-num">3</div>
+                        <h4>Tạo Keyword + Webhook URL bên dưới</h4>
+                        <div class="setup-step-body">
+                            <p class="setup-hint">Tạo keyword kèm webhook url để app tự gửi khi phát hiện giao dịch khớp</p>
+                            <div class="setup-icon">⚙️</div>
+                        </div>
+                    </div>
+                    <div class="setup-step-card">
+                        <div class="setup-step-num">4</div>
+                        <h4>Đồng bộ vào App bằng QR</h4>
+                        <div class="setup-step-body">
+                            <div id="qrSyncApp" class="qr-mini"></div>
+                            <p class="qr-mini-label">📲 QUÉT ĐỂ ĐỒNG BỘ APP</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keyword/Webhook Management (like Checkout.vn) -->
+                <div class="settings-group">
+                    <div class="keyword-header">
+                        <h4 class="settings-group-title">Danh sách keyword</h4>
+                        <button class="btn-add-keyword" onclick="openKeywordModal()">+ Keyword</button>
+                    </div>
+                    <div class="keyword-table-wrap">
+                        <table class="keyword-table">
+                            <thead>
+                                <tr>
+                                    <th>KEYWORD</th>
+                                    <th>WEBHOOK URL</th>
+                                    <th>SUBMITS</th>
+                                    <th>LAST SUBMIT</th>
+                                    <th>TRẠNG THÁI</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keywordTableBody">
+                                <!-- Filled by JS -->
+                            </tbody>
+                        </table>
+                        <div id="keywordEmpty" class="empty-state">Chưa có keyword nào. Nhấn <strong>+ Keyword</strong> để thêm.</div>
+                    </div>
+                </div>
+
+                <!-- Bank Settings -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">🏦 Ngân hàng nhận</h4>
+                    <div class="setting-item">
+                        <label>Ngân hàng</label>
+                        <select id="setBankName" class="input">
+                            <option value="">-- Chọn ngân hàng --</option>
+                            <option value="vietcombank">Vietcombank</option>
+                            <option value="techcombank">Techcombank</option>
+                            <option value="mbbank">MBBank</option>
+                            <option value="bidv">BIDV</option>
+                            <option value="vietinbank">VietinBank</option>
+                            <option value="acb">ACB</option>
+                            <option value="tpbank">TPBank</option>
+                            <option value="vpbank">VPBank</option>
+                            <option value="sacombank">Sacombank</option>
+                            <option value="agribank">Agribank</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Số tài khoản</label>
+                        <input type="text" id="setAccountNum" placeholder="0123456789" class="input">
+                    </div>
+                    <div class="setting-item">
+                        <label>Chủ tài khoản</label>
+                        <input type="text" id="setAccountName" placeholder="NGUYEN VAN A" class="input">
+                    </div>
+                    <button class="btn-primary" onclick="saveBankSettings()">💾 Lưu ngân hàng</button>
+                </div>
+
+                <!-- Notification & Info -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">🔔 Thông báo</h4>
+                    <div class="setting-toggle">
+                        <span>Thông báo giao dịch mới</span>
+                        <label class="toggle"><input type="checkbox" id="setNotifTx" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-toggle">
+                        <span>Thông báo lỗi webhook</span>
+                        <label class="toggle"><input type="checkbox" id="setNotifError" checked><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h4 class="settings-group-title">ℹ️ Thông tin</h4>
+                    <div class="setting-info">
+                        <span>Phiên bản</span><span>v2.0.0</span>
+                    </div>
+                    <div class="setting-info">
+                        <span>Tài khoản</span><span id="setEmail">—</span>
+                    </div>
+                    <a href="#" class="setting-link" onclick="handleLogout()">🚪 Đăng xuất</a>
+                </div>
+            </section>
+
+            <!-- ═══ TAB: API Key ═══ -->
+            <section id="tab-api" class="tab-panel">
+                <h3 class="section-title">🔑 API Key</h3>
+
+                <!-- API Key Card -->
+                <div class="settings-group api-key-card">
+                    <div class="keyword-header">
+                        <h4 class="settings-group-title">API Key của bạn</h4>
+                        <button class="btn-add-keyword" onclick="regenerateApiKey()" style="background:var(--orange)">🔄 Tạo mới</button>
+                    </div>
+                    <p class="api-desc">Dùng API key này để tích hợp PayEay vào website hoặc backend của bạn.</p>
+                    <div class="api-key-display">
+                        <code id="apiKeyValue">Chưa có API Key — nhấn "Tạo mới" để sinh key</code>
+                        <button class="btn-copy" onclick="copyApiKey()" title="Copy">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        </button>
+                    </div>
+                    <div class="api-warning">
+                        ⚠️ Giữ API key bí mật. Nếu bị lộ, hãy nhấn <strong>"Tạo mới"</strong> để thay thế.
+                    </div>
+                </div>
+
+                <!-- API Base URL -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">🌐 Base URL</h4>
+                    <div class="api-key-display">
+                        <code id="apiBaseUrl">https://api.payeay.vn/v1</code>
+                        <button class="btn-copy" onclick="copyText('apiBaseUrl')" title="Copy">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- API Endpoints -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">📡 Endpoints</h4>
+                    
+                    <div class="api-endpoint">
+                        <div class="api-method get">GET</div>
+                        <code>/api/transaction/check</code>
+                    </div>
+                    <p class="api-endpoint-desc">Kiểm tra giao dịch mới nhất khớp keyword</p>
+                    
+                    <table class="api-params-table">
+                        <thead><tr><th>Tham số</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>api_key</code></td><td>string</td><td>API key của bạn <span class="required">*</span></td></tr>
+                            <tr><td><code>keyword</code></td><td>string</td><td>Keyword cần kiểm tra (VD: "ad", "ORDER123")</td></tr>
+                            <tr><td><code>amount</code></td><td>number</td><td>Số tiền cần khớp (tùy chọn)</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="api-response-box">
+                        <h5>✅ Response thành công:</h5>
+                        <pre class="code-block">{
+  "success": true,
+  "data": {
+    "message": "VCB: TK 0123xxx nhận +500,000 VND. ND: ad THANHTOAN123",
+    "type": "notification",
+    "source": "Vietcombank",
+    "amount": 500000,
+    "keyword": "ad",
+    "timestamp": "2026-04-13T12:30:00Z"
+  }
+}</pre>
+                    </div>
+
+                    <hr class="api-divider">
+
+                    <div class="api-endpoint">
+                        <div class="api-method post">POST</div>
+                        <code>/api/webhook/receive</code>
+                    </div>
+                    <p class="api-endpoint-desc">App Android gửi thông báo về server (tự động)</p>
+
+                    <table class="api-params-table">
+                        <thead><tr><th>Tham số</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>api_key</code></td><td>string</td><td>API key <span class="required">*</span></td></tr>
+                            <tr><td><code>message</code></td><td>string</td><td>Nội dung tin nhắn/thông báo <span class="required">*</span></td></tr>
+                            <tr><td><code>type</code></td><td>string</td><td>"sms" hoặc "notification"</td></tr>
+                            <tr><td><code>source</code></td><td>string</td><td>Nguồn (VD: "Vietcombank")</td></tr>
+                        </tbody>
+                    </table>
+
+                    <hr class="api-divider">
+
+                    <div class="api-endpoint">
+                        <div class="api-method get">GET</div>
+                        <code>/api/transactions/list</code>
+                    </div>
+                    <p class="api-endpoint-desc">Lấy danh sách giao dịch gần đây</p>
+
+                    <table class="api-params-table">
+                        <thead><tr><th>Tham số</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>api_key</code></td><td>string</td><td>API key <span class="required">*</span></td></tr>
+                            <tr><td><code>limit</code></td><td>number</td><td>Số giao dịch (mặc định: 20)</td></tr>
+                            <tr><td><code>keyword</code></td><td>string</td><td>Lọc theo keyword (tùy chọn)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Code Examples -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">💻 Ví dụ tích hợp</h4>
+
+                    <div class="code-tabs">
+                        <button class="code-tab active" onclick="switchCodeTab('curl')">cURL</button>
+                        <button class="code-tab" onclick="switchCodeTab('js')">JavaScript</button>
+                        <button class="code-tab" onclick="switchCodeTab('php')">PHP</button>
+                    </div>
+
+                    <div id="code-curl" class="code-example active">
+                        <pre class="code-block">curl -X GET "https://api.payeay.vn/v1/api/transaction/check?api_key=YOUR_API_KEY&keyword=ad&amount=500000"</pre>
+                    </div>
+
+                    <div id="code-js" class="code-example">
+                        <pre class="code-block">// Kiểm tra giao dịch mới nhất
+const response = await fetch(
+  'https://api.payeay.vn/v1/api/transaction/check?' +
+  new URLSearchParams({
+    api_key: 'YOUR_API_KEY',
+    keyword: 'ORDER123',
+    amount: 500000
+  })
+);
+const data = await response.json();
+
+if (data.success) {
+  console.log('Giao dịch khớp:', data.data.message);
+  // Kích hoạt đơn hàng
+} else {
+  console.log('Chưa có giao dịch khớp');
+}</pre>
+                    </div>
+
+                    <div id="code-php" class="code-example">
+                        <pre class="code-block">&lt;?php
+// Kiểm tra giao dịch
+$apiKey = 'YOUR_API_KEY';
+$keyword = 'ORDER123';
+$amount = 500000;
+
+$url = "https://api.payeay.vn/v1/api/transaction/check?" . http_build_query([
+    'api_key' =&gt; $apiKey,
+    'keyword' =&gt; $keyword,
+    'amount'  =&gt; $amount
+]);
+
+$response = json_decode(file_get_contents($url), true);
+
+if ($response['success']) {
+    echo "Giao dịch: " . $response['data']['message'];
+    // Kích hoạt đơn hàng
+} else {
+    echo "Chưa có giao dịch khớp";
+}
+?&gt;</pre>
+                    </div>
+                </div>
+
+                <!-- Webhook Callback -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">🔔 Webhook Callback</h4>
+                    <p class="api-desc">Khi có giao dịch khớp keyword, PayEay sẽ gửi request đến webhook URL bạn đã cấu hình:</p>
+                    <div class="api-response-box">
+                        <h5>📤 Webhook payload gửi đến URL của bạn:</h5>
+                        <pre class="code-block">GET https://your-domain.com/webhook?message=VCB:+TK+0123xxx...&type=notification&source=Vietcombank&api_key=YOUR_KEY&keyword=ad&amount=500000&timestamp=2026-04-13T12:30:00Z</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ KEYWORD MODAL ═══ -->
+            <div id="keywordModal" class="modal-overlay hidden">
+                <div class="modal-card">
+                    <div class="modal-header">
+                        <span>➕</span>
+                        <h3 id="modalTitle">Cấu hình Webhook</h3>
+                        <button class="modal-close" onclick="closeKeywordModal()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-row">
+                            <div class="modal-field">
+                                <label><strong>Keyword:</strong> Nếu SMS hoặc Noti chứa</label>
+                                <input type="text" id="kwKeyword" placeholder="Ví dụ: Unica" class="input">
+                                <label class="mt-12"><strong>Webhook URL:</strong> Gửi nội dung qua webhook xử lý</label>
+                                <input type="url" id="kwWebhookUrl" placeholder="https://" class="input">
+                                <label class="mt-12"><strong>Nguồn:</strong></label>
+                                <input type="text" id="kwSource" placeholder="* Dùng * để nhận tất cả tin nhắn và thông báo" class="input" value="*">
+                            </div>
+                            <div class="modal-guide">
+                                <div class="guide-info-box">
+                                    <h4>ℹ️ Hướng dẫn:</h4>
+                                    <p>Dữ liệu GET nhận về bao gồm các tham số:</p>
+                                    <div class="param"><strong>message:</strong><br>Nội dung tin nhắn</div>
+                                    <div class="param"><strong>type:</strong><br>Loại thông báo (sms, notification)</div>
+                                    <div class="param"><strong>source:</strong><br>Nguồn (Vietcombank, Techcombank..)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary btn-save-kw" onclick="saveKeyword()">💾 Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Tab Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-tab="home" onclick="switchTab('home')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                <span>Trang chủ</span>
+            </button>
+            <button class="nav-btn" data-tab="guide" onclick="switchTab('guide')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                <span>Hướng dẫn</span>
+            </button>
+            <button class="nav-btn" data-tab="stats" onclick="switchTab('stats')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Thống kê</span>
+            </button>
+            <button class="nav-btn" data-tab="settings" onclick="switchTab('settings')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                <span>Cài đặt</span>
+            </button>
+            <button class="nav-btn" data-tab="api" onclick="switchTab('api')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                <span>API Key</span>
+            </button>
+        </nav>
+
+        <!-- Toast -->
+        <div id="toast" class="toast hidden"></div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
